@@ -1,0 +1,31 @@
+jobs_dir: evals/harbor/jobs/ollama-harness-smoke
+n_attempts: 1
+timeout_multiplier: 1.0
+
+orchestrator:
+  type: local
+  n_concurrent_trials: 1
+
+environment:
+  type: docker
+  force_build: false
+  delete: true
+  mounts:
+    - type: bind
+      source: /Users/parth/Documents/repos/ollama-agent-loop
+      target: /ollama-src
+      read_only: true
+      bind:
+        create_host_path: false
+
+agents:
+  - import_path: evals.harbor.agents.ollama_harness_agent:OllamaHarnessAgent
+    model_name: glm-5.2:cloud
+    kwargs:
+      ollama_host: http://host.docker.internal:11434
+      command_template: "ollama-agent-branch {model}"
+      check_host: true
+      run_timeout_sec: 900
+
+datasets:
+  - path: evals/harbor/tasks
