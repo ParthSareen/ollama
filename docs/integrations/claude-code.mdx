@@ -176,7 +176,7 @@ irm https://claude.ai/install.ps1 | iex
 ```shell
 export ANTHROPIC_AUTH_TOKEN=ollama
 export ANTHROPIC_API_KEY=""
-export ANTHROPIC_BASE_URL=http://localhost:11434
+export ANTHROPIC_BASE_URL=http://localhost:11433
 ```
 
 <p className="manual-step-title">3. Run Claude Code</p>
@@ -188,5 +188,5 @@ claude --model qwen3.5
 Or run with environment variables inline:
 
 ```shell
-ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY="" claude --model kimi-k2.7-code:cloud
+ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11433 ANTHROPIC_API_KEY="" claude --model kimi-k2.7-code:cloud
 ```

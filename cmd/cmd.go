@@ -2291,7 +2291,7 @@ func NewCLI() *cobra.Command {
 	}
 
 	rootCmd := &cobra.Command{
-		Use:           "ollama",
+		Use:           "pllama",
 		Short:         "Large language model runner",
 		SilenceUsage:  true,
 		SilenceErrors: true,
@@ -2391,7 +2391,7 @@ func NewCLI() *cobra.Command {
 	serveCmd := &cobra.Command{
 		Use:     "serve",
 		Aliases: []string{"start"},
-		Short:   "Start Ollama",
+		Short:   "Start Pllama",
 		Args:    cobra.ExactArgs(0),
 		RunE:    RunServer,
 	}

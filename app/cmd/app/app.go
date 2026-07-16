@@ -63,14 +63,14 @@ func main() {
 	if len(os.Args) > 1 {
 		for _, arg := range os.Args {
 			// Handle URL scheme requests (Windows)
-			if strings.HasPrefix(arg, "ollama://") {
+			if strings.HasPrefix(arg, "pllama://") {
 				urlSchemeRequest = arg
 				slog.Info("received URL scheme request", "url", arg)
 				continue
 			}
 			switch arg {
 			case "serve":
-				fmt.Fprintln(os.Stderr, "serve command not supported, use ollama")
+				fmt.Fprintln(os.Stderr, "serve command not supported, use pllama")
 				os.Exit(1)
 			case "version", "-v", "--version":
 				fmt.Println(version.Version)
@@ -88,7 +88,7 @@ func main() {
 			case "hidden", "-j", "--hide":
 				// startHidden suppresses the UI on startup, and can be triggered multiple ways
 				// On windows, path based via login startup detection
-				// On MacOS via [NSApp isHidden] from `open -j -a /Applications/Ollama.app` or equivalent
+				// On MacOS via [NSApp isHidden] from `open -j -a /Applications/Pllama.app` or equivalent
 				// On both via the "hidden" command line argument
 				startHidden = true
 			case "--fast-startup":
@@ -183,7 +183,7 @@ func main() {
 	handleExistingInstance(startHidden)
 
 	// on macOS, offer the user to create a symlink
-	// from /usr/local/bin/ollama to the app bundle
+	// from /usr/local/bin/pllama to the app bundle
 	installSymlink()
 
 	var ln net.Listener
@@ -468,8 +468,8 @@ func openInBrowser(url string) {
 	}
 }
 
-// parseURLScheme parses an ollama:// URL and validates it
-// Supports: ollama:// (open app) and ollama://connect (OAuth)
+// parseURLScheme parses a pllama:// URL and validates it.
+// Supports: pllama:// (open app) and pllama://connect (OAuth).
 func parseURLScheme(urlSchemeRequest string) (isConnect bool, err error) {
 	parsedURL, err := url.Parse(urlSchemeRequest)
 	if err != nil {
@@ -481,12 +481,12 @@ func parseURLScheme(urlSchemeRequest string) (isConnect bool, err error) {
 		return true, nil
 	}
 
-	// Allow bare ollama:// or ollama:/// to open the app
+	// Allow bare pllama:// or pllama:/// to open the app
 	if (parsedURL.Host == "" && parsedURL.Path == "") || parsedURL.Path == "/" {
 		return false, nil
 	}
 
-	return false, fmt.Errorf("unsupported ollama:// URL path: %s", urlSchemeRequest)
+	return false, fmt.Errorf("unsupported pllama:// URL path: %s", urlSchemeRequest)
 }
 
 // handleURLSchemeInCurrentInstance processes URL scheme requests in the current instance

@@ -52,6 +52,9 @@ type UpdateResponse struct {
 
 func (u *Updater) checkForUpdate(ctx context.Context) (bool, UpdateResponse) {
 	var updateResp UpdateResponse
+	if UpdateCheckURLBase == "" {
+		return false, updateResp
+	}
 
 	requestURL, err := url.Parse(UpdateCheckURLBase)
 	if err != nil {

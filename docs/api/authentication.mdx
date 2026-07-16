@@ -2,7 +2,7 @@
 title: Authentication
 ---
 
-No authentication is required when accessing Ollama's API locally via `http://localhost:11434`.
+No authentication is required when accessing Ollama's API locally via `http://localhost:11433`.
 
 Authentication is required for the following:
 
@@ -32,7 +32,7 @@ ollama run gpt-oss:120b-cloud
 Similarly, when accessing a local API endpoint that requires cloud access, Ollama will automatically authenticate the request:
 
 ```shell
-curl http://localhost:11434/api/generate -d '{
+curl http://localhost:11433/api/generate -d '{
   "model": "gpt-oss:120b-cloud",
   "prompt": "Why is the sky blue?"
 }'

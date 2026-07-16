@@ -12,7 +12,7 @@ To use Ollama with tools that expect the Anthropic API (like Claude Code), set t
 
 ```shell
 export ANTHROPIC_AUTH_TOKEN=ollama  # required but ignored
-export ANTHROPIC_BASE_URL=http://localhost:11434
+export ANTHROPIC_BASE_URL=http://localhost:11433
 ```
 
 ### Simple `/v1/messages` example
@@ -23,7 +23,7 @@ export ANTHROPIC_BASE_URL=http://localhost:11434
 import anthropic
 
 client = anthropic.Anthropic(
-    base_url='http://localhost:11434',
+    base_url='http://localhost:11433',
     api_key='ollama',  # required but ignored
 )
 
@@ -41,7 +41,7 @@ print(message.content[0].text)
 import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic({
-  baseURL: "http://localhost:11434",
+  baseURL: "http://localhost:11433",
   apiKey: "ollama", // required but ignored
 });
 
@@ -55,7 +55,7 @@ console.log(message.content[0].text);
 ```
 
 ```shell basic.sh
-curl -X POST http://localhost:11434/v1/messages \
+curl -X POST http://localhost:11433/v1/messages \
 -H "Content-Type: application/json" \
 -H "x-api-key: ollama" \
 -H "anthropic-version: 2023-06-01" \
@@ -76,7 +76,7 @@ curl -X POST http://localhost:11434/v1/messages \
 import anthropic
 
 client = anthropic.Anthropic(
-    base_url='http://localhost:11434',
+    base_url='http://localhost:11433',
     api_key='ollama',
 )
 
@@ -93,7 +93,7 @@ with client.messages.stream(
 import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic({
-  baseURL: "http://localhost:11434",
+  baseURL: "http://localhost:11433",
   apiKey: "ollama",
 });
 
@@ -114,7 +114,7 @@ for await (const event of stream) {
 ```
 
 ```shell streaming.sh
-curl -X POST http://localhost:11434/v1/messages \
+curl -X POST http://localhost:11433/v1/messages \
 -H "Content-Type: application/json" \
 -d '{
   "model": "qwen3-coder",
@@ -134,7 +134,7 @@ curl -X POST http://localhost:11434/v1/messages \
 import anthropic
 
 client = anthropic.Anthropic(
-    base_url='http://localhost:11434',
+    base_url='http://localhost:11433',
     api_key='ollama',
 )
 
@@ -170,7 +170,7 @@ for block in message.content:
 import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic({
-  baseURL: "http://localhost:11434",
+  baseURL: "http://localhost:11433",
   apiKey: "ollama",
 });
 
@@ -205,7 +205,7 @@ for (const block of message.content) {
 ```
 
 ```shell tools.sh
-curl -X POST http://localhost:11434/v1/messages \
+curl -X POST http://localhost:11433/v1/messages \
 -H "Content-Type: application/json" \
 -d '{
   "model": "qwen3-coder",
@@ -268,14 +268,14 @@ ollama launch claude --config
 Set the environment variables and run Claude Code:
 
 ```shell
-ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 claude --model qwen3-coder
+ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11433 claude --model qwen3-coder
 ```
 
 Or set the environment variables in your shell profile:
 
 ```shell
 export ANTHROPIC_AUTH_TOKEN=ollama
-export ANTHROPIC_BASE_URL=http://localhost:11434
+export ANTHROPIC_BASE_URL=http://localhost:11433
 ```
 
 Then run Claude Code with any Ollama model:
@@ -376,7 +376,7 @@ ollama cp qwen3-coder claude-3-5-sonnet
 Afterwards, this new model name can be specified in the `model` field:
 
 ```shell
-curl http://localhost:11434/v1/messages \
+curl http://localhost:11433/v1/messages \
     -H "Content-Type: application/json" \
     -d '{
         "model": "claude-3-5-sonnet",

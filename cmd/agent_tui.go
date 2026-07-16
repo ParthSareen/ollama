@@ -238,7 +238,7 @@ func GenerateAgentTUI(cmd *cobra.Command, client *api.Client, opts agentTUIOptio
 	}
 	systemPrompt := agentSystemPromptWithWorkingDir(opts.Model, opts.System, skillContext, cwd)
 
-	_, err := agentchat.Run(cmd.Context(), agentchat.Options{
+	_, err = agentchat.Run(cmd.Context(), agentchat.Options{
 		Model:                opts.Model,
 		Client:               client,
 		Tools:                registry,

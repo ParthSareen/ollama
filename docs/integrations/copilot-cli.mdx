@@ -72,7 +72,7 @@ Copilot CLI connects to Ollama using the OpenAI-compatible API via environment v
 1. Set the environment variables:
 
 ```shell
-export COPILOT_PROVIDER_BASE_URL=http://localhost:11434/v1
+export COPILOT_PROVIDER_BASE_URL=http://localhost:11433/v1
 export COPILOT_PROVIDER_API_KEY=
 export COPILOT_PROVIDER_WIRE_API=responses
 export COPILOT_MODEL=qwen3.5
@@ -87,7 +87,7 @@ copilot
 Or run with environment variables inline:
 
 ```shell
-COPILOT_PROVIDER_BASE_URL=http://localhost:11434/v1 COPILOT_PROVIDER_API_KEY= COPILOT_PROVIDER_WIRE_API=responses COPILOT_MODEL=glm-5:cloud copilot
+COPILOT_PROVIDER_BASE_URL=http://localhost:11433/v1 COPILOT_PROVIDER_API_KEY= COPILOT_PROVIDER_WIRE_API=responses COPILOT_MODEL=glm-5:cloud copilot
 ```
 
 **Note:** Copilot requires a large context window. We recommend at least 64k tokens. See the [context length documentation](/context-length) for how to adjust context length in Ollama.

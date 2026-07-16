@@ -187,7 +187,7 @@ if [ -f /etc/nv_tegra_release ] ; then
 fi
 
 install_success() {
-    status 'The Ollama API is now available at 127.0.0.1:11434.'
+    status 'The Ollama API is now available at 127.0.0.1:11433.'
     status 'Install complete. Run "ollama" from the command line.'
 }
 trap install_success EXIT

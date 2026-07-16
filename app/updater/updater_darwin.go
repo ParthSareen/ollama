@@ -22,7 +22,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-const updateArchiveRoot = "Ollama.app"
+const updateArchiveRoot = "Pllama.app"
 
 type bundleEntryScope int
 
@@ -33,7 +33,7 @@ const (
 
 var (
 	appBackupDir   string
-	SystemWidePath = "/Applications/Ollama.app"
+	SystemWidePath = "/Applications/Pllama.app"
 )
 
 var BundlePath = func() string {
@@ -63,7 +63,10 @@ var BundlePath = func() string {
 
 func init() {
 	VerifyDownload = verifyDownload
-	Installer = "Ollama-darwin.zip"
+	// Pllama does not consume Ollama's update feed. Build this long-lived fork
+	// locally or wire a fork-specific update service before re-enabling it.
+	UpdateCheckURLBase = ""
+	Installer = "Pllama-darwin.zip"
 	home, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)
@@ -81,16 +84,16 @@ func init() {
 
 	// TODO handle failure modes here, and developer mode better...
 
-	// Executable = Ollama.app/Contents/MacOS/Ollama
+	// Executable = Pllama.app/Contents/MacOS/Pllama
 
-	UpgradeLogFile = filepath.Join(home, ".ollama", "logs", "upgrade.log")
+	UpgradeLogFile = filepath.Join(home, "Library", "Application Support", "Pllama", "logs", "upgrade.log")
 
 	cacheDir, err := os.UserCacheDir()
 	if err != nil {
 		slog.Warn("unable to determine user cache dir, falling back to tmpdir", "error", err)
 		cacheDir = os.TempDir()
 	}
-	appDataDir := filepath.Join(cacheDir, "ollama")
+	appDataDir := filepath.Join(cacheDir, "pllama")
 	UpgradeMarkerFile = filepath.Join(appDataDir, "upgraded")
 	appBackupDir = filepath.Join(appDataDir, "backup")
 	UpdateStageDir = filepath.Join(appDataDir, "updates")
@@ -110,7 +113,7 @@ func DoUpgrade(interactive bool) error {
 	// time to drain connections and stop allowing new connections while we perform the
 	// actual upgrade to reduce the overall time to complete
 	contentsName := filepath.Join(BundlePath, "Contents")
-	appBackup := filepath.Join(appBackupDir, "Ollama.app")
+	appBackup := filepath.Join(appBackupDir, "Pllama.app")
 	contentsOldName := filepath.Join(appBackup, "Contents")
 
 	// Verify old doesn't exist yet
@@ -166,7 +169,7 @@ func DoUpgrade(interactive bool) error {
 		}
 	}()
 
-	// Bundle contents Ollama.app/Contents/...
+	// Bundle contents Pllama.app/Contents/...
 	links := []*zip.File{}
 	for _, f := range r.File {
 		s := strings.SplitN(f.Name, "/", 2)
@@ -205,7 +208,7 @@ func DoUpgrade(interactive bool) error {
 		}
 	}
 	for _, f := range links {
-		s := strings.SplitN(f.Name, "/", 2) // Strip off Ollama.app/
+		s := strings.SplitN(f.Name, "/", 2) // Strip off Pllama.app/
 		if len(s) < 2 || s[1] == "" {
 			slog.Debug("skipping link", "file", f.Name)
 			continue
@@ -338,7 +341,7 @@ func verifyDownload() error {
 		}
 	}
 
-	if err := verifyExtractedBundle(filepath.Join(dir, "Ollama.app")); err != nil {
+	if err := verifyExtractedBundle(filepath.Join(dir, "Pllama.app")); err != nil {
 		return fmt.Errorf("signature verification failed: %s", err)
 	}
 	return nil
@@ -462,7 +465,7 @@ func alreadyMoved() string {
 	// Respect users intent if they chose "keep" vs. "replace" when dragging to Applications
 	installedAppPaths, err := filepath.Glob(filepath.Join(
 		strings.TrimSuffix(SystemWidePath, filepath.Ext(SystemWidePath))+"*"+filepath.Ext(SystemWidePath),
-		"Contents", "MacOS", "Ollama"))
+		"Contents", "MacOS", "Pllama"))
 	if err != nil {
 		slog.Warn("failed to lookup installed app paths", "error", err)
 		return ""

@@ -24,10 +24,10 @@ import (
 
 const restartDelay = time.Second
 
-// Server is a managed ollama server process
+// Server is a managed pllama server process.
 type Server struct {
 	store *store.Store
-	bin   string // resolved path to `ollama`
+	bin   string // resolved path to `pllama`
 	log   io.WriteCloser
 	dev   bool // true if running with the dev flag
 }
@@ -47,7 +47,7 @@ type InferenceInfo struct {
 }
 
 func New(s *store.Store, devMode bool) *Server {
-	p := resolvePath("ollama")
+	p := resolvePath("pllama")
 	return &Server{store: s, bin: p, dev: devMode}
 }
 
@@ -89,7 +89,7 @@ func ollamaServeArgs(args []string) bool {
 	}
 
 	switch strings.Trim(filepath.Base(args[0]), `"`) {
-	case "ollama", "ollama.exe":
+	case "pllama", "pllama.exe":
 	default:
 		return false
 	}

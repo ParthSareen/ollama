@@ -13,7 +13,7 @@ Also known as "single-shot" tool calling.
   <Tab title="cURL">
 
     ```shell
-    curl -s http://localhost:11434/api/chat -H "Content-Type: application/json" -d '{
+    curl -s http://localhost:11433/api/chat -H "Content-Type: application/json" -d '{
       "model": "qwen3",
       "messages": [{"role": "user", "content": "What is the temperature in New York?"}],
       "stream": false,
@@ -38,7 +38,7 @@ Also known as "single-shot" tool calling.
 
     **Generate a response with a single tool result**
     ```shell
-    curl -s http://localhost:11434/api/chat -H "Content-Type: application/json" -d '{
+    curl -s http://localhost:11433/api/chat -H "Content-Type: application/json" -d '{
       "model": "qwen3",
       "messages": [
         {"role": "user", "content": "What is the temperature in New York?"},
@@ -179,7 +179,7 @@ Also known as "single-shot" tool calling.
     Request multiple tool calls in parallel, then send all tool responses back to the model.
 
     ```shell
-    curl -s http://localhost:11434/api/chat -H "Content-Type: application/json" -d '{
+    curl -s http://localhost:11433/api/chat -H "Content-Type: application/json" -d '{
       "model": "qwen3",
       "messages": [{"role": "user", "content": "What are the current weather conditions and temperature in New York and London?"}],
       "stream": false,
@@ -218,7 +218,7 @@ Also known as "single-shot" tool calling.
 
     **Generate a response with multiple tool results**
     ```shell
-    curl -s http://localhost:11434/api/chat -H "Content-Type: application/json" -d '{
+    curl -s http://localhost:11433/api/chat -H "Content-Type: application/json" -d '{
       "model": "qwen3",
       "messages": [
         {"role": "user", "content": "What are the current weather conditions and temperature in New York and London?"},

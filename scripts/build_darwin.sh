@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Note:
-#  While testing, if you double-click on the Ollama.app
+#  While testing, if you double-click on the Pllama.app
 #  some state is left on MacOS and subsequent attempts
 #  to build again will fail with:
 #
@@ -11,7 +11,7 @@
 #
 #    VOL_NAME="$(date)" ./scripts/build_darwin.sh
 #
-VOL_NAME=${VOL_NAME:-"Ollama"}
+VOL_NAME=${VOL_NAME:-"Pllama"}
 export VERSION=${VERSION:-$(git describe --tags --first-parent --abbrev=7 --long --dirty --always | sed -e "s/^v//g")}
 export CGO_CFLAGS="-O3 -mmacosx-version-min=14.0"
 export CGO_CXXFLAGS="-O3 -mmacosx-version-min=14.0"
@@ -64,7 +64,7 @@ _build_darwin() {
             MLX_CGO_LDFLAGS="-ldl -lc++ -framework Accelerate -mmacosx-version-min=14.0"
         else
             CMAKE_ARCH=arm64
-            MLX_BACKENDS="metal_v3;metal_v4"
+            MLX_BACKENDS=${OLLAMA_MLX_BACKENDS:-"metal_v3;metal_v4"}
             MLX_EXTRA_ARGS=
             MLX_CGO_CFLAGS="-O3 -mmacosx-version-min=14.0"
             MLX_CGO_LDFLAGS="-lc++ -framework Metal -framework Foundation -framework Accelerate -mmacosx-version-min=14.0"
@@ -76,7 +76,9 @@ _build_darwin() {
             -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
             -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX \
             -DOLLAMA_PAYLOAD_INSTALL_PREFIX=$INSTALL_PREFIX \
-            -DOLLAMA_GO_OUTPUT=$INSTALL_PREFIX/ollama \
+            -DOLLAMA_GO_OUTPUT=$INSTALL_PREFIX/pllama \
+            -DOLLAMA_GOOS=darwin \
+            -DOLLAMA_GOARCH=$ARCH \
             -DOLLAMA_VERSION="$VERSION" \
             -DOLLAMA_MLX_BACKENDS="$MLX_BACKENDS" \
             -DOLLAMA_LLAMA_BACKENDS= \
@@ -138,9 +140,9 @@ _merge_darwin_payload() {
 _prepare_darwin_runtime() {
     status "Creating universal binary..."
     mkdir -p dist/darwin
-    lipo -create -output dist/darwin/ollama dist/darwin-amd64/ollama dist/darwin-arm64/ollama
-    chmod +x dist/darwin/ollama
-    lipo dist/darwin/ollama -verify_arch x86_64 arm64
+    lipo -create -output dist/darwin/pllama dist/darwin-amd64/pllama dist/darwin-arm64/pllama
+    chmod +x dist/darwin/pllama
+    lipo dist/darwin/pllama -verify_arch x86_64 arm64
 
     lipo -create -output dist/darwin/llama-server dist/darwin-amd64/lib/ollama/llama-server dist/darwin-arm64/lib/ollama/llama-server
     chmod +x dist/darwin/llama-server
@@ -155,10 +157,10 @@ _prepare_darwin_runtime() {
 
 _create_darwin_runtime_tarball() {
     status "Creating universal tarball..."
-    rm -f dist/ollama-darwin.tar dist/ollama-darwin.tgz
-    tar -cf dist/ollama-darwin.tar --strip-components 2 dist/darwin/ollama dist/darwin/llama-server dist/darwin/llama-quantize
-    tar -rf dist/ollama-darwin.tar --strip-components 4 dist/darwin/lib/ollama
-    gzip -9vc <dist/ollama-darwin.tar >dist/ollama-darwin.tgz
+    rm -f dist/pllama-darwin.tar dist/pllama-darwin.tgz
+    tar -cf dist/pllama-darwin.tar --strip-components 2 dist/darwin/pllama dist/darwin/llama-server dist/darwin/llama-quantize
+    tar -rf dist/pllama-darwin.tar --strip-components 4 dist/darwin/lib/ollama
+    gzip -9vc <dist/pllama-darwin.tar >dist/pllama-darwin.tgz
 }
 
 _package_darwin_runtime() {
@@ -169,14 +171,14 @@ _package_darwin_runtime() {
 _sign_darwin() {
     _prepare_darwin_runtime
     if [ -n "$APPLE_IDENTITY" ]; then
-        for F in dist/darwin/ollama dist/darwin/llama-server dist/darwin/llama-quantize dist/darwin/lib/ollama/* dist/darwin/lib/ollama/mlx_metal_v*/*; do
+        for F in dist/darwin/pllama dist/darwin/llama-server dist/darwin/llama-quantize dist/darwin/lib/ollama/* dist/darwin/lib/ollama/mlx_metal_v*/*; do
             [ -f "$F" ] && [ ! -L "$F" ] || continue
-            codesign -f --timestamp -s "$APPLE_IDENTITY" --identifier ai.ollama.ollama --options=runtime "$F"
+            codesign -f --timestamp -s "$APPLE_IDENTITY" --identifier com.parthsareen.pllama --options=runtime "$F"
         done
 
         # create a temporary zip for notarization
         TEMP=$(mktemp -u).zip
-        ditto -c -k --keepParent dist/darwin/ollama "$TEMP"
+        ditto -c -k --keepParent dist/darwin/pllama "$TEMP"
         xcrun notarytool submit "$TEMP" --wait --timeout 20m --apple-id $APPLE_ID --password $APPLE_PASSWORD --team-id $APPLE_TEAM_ID
         rm -f "$TEMP"
     fi
@@ -203,88 +205,88 @@ _build_macapp() {
     npm run build
     cd ../../..
 
-    # Build the Ollama.app bundle
-    rm -rf dist/Ollama.app
-    cp -a ./app/darwin/Ollama.app dist/Ollama.app
+    # Build the Pllama.app bundle
+    rm -rf dist/Pllama.app
+    cp -a ./app/darwin/Pllama.app dist/Pllama.app
 
     # update the modified date of the app bundle to now
-    touch dist/Ollama.app
+    touch dist/Pllama.app
 
     go clean -cache
     GOARCH=amd64 CGO_ENABLED=1 GOOS=darwin go build -o dist/darwin-app-amd64 -ldflags="-s -w -X=github.com/ollama/ollama/app/version.Version=${VERSION}" ./app/cmd/app
     GOARCH=arm64 CGO_ENABLED=1 GOOS=darwin go build -o dist/darwin-app-arm64 -ldflags="-s -w -X=github.com/ollama/ollama/app/version.Version=${VERSION}" ./app/cmd/app
-    mkdir -p dist/Ollama.app/Contents/MacOS
-    lipo -create -output dist/Ollama.app/Contents/MacOS/Ollama dist/darwin-app-amd64 dist/darwin-app-arm64
+    mkdir -p dist/Pllama.app/Contents/MacOS
+    lipo -create -output dist/Pllama.app/Contents/MacOS/Pllama dist/darwin-app-amd64 dist/darwin-app-arm64
     rm -f dist/darwin-app-amd64 dist/darwin-app-arm64
 
     # Create a mock Squirrel.framework bundle
-    mkdir -p dist/Ollama.app/Contents/Frameworks/Squirrel.framework/Versions/A/Resources/
-    cp -a dist/Ollama.app/Contents/MacOS/Ollama dist/Ollama.app/Contents/Frameworks/Squirrel.framework/Versions/A/Squirrel
-    ln -s ../Squirrel dist/Ollama.app/Contents/Frameworks/Squirrel.framework/Versions/A/Resources/ShipIt
-    cp -a ./app/cmd/squirrel/Info.plist dist/Ollama.app/Contents/Frameworks/Squirrel.framework/Versions/A/Resources/Info.plist
-    ln -s A dist/Ollama.app/Contents/Frameworks/Squirrel.framework/Versions/Current
-    ln -s Versions/Current/Resources dist/Ollama.app/Contents/Frameworks/Squirrel.framework/Resources
-    ln -s Versions/Current/Squirrel dist/Ollama.app/Contents/Frameworks/Squirrel.framework/Squirrel
+    mkdir -p dist/Pllama.app/Contents/Frameworks/Squirrel.framework/Versions/A/Resources/
+    cp -a dist/Pllama.app/Contents/MacOS/Pllama dist/Pllama.app/Contents/Frameworks/Squirrel.framework/Versions/A/Squirrel
+    ln -s ../Squirrel dist/Pllama.app/Contents/Frameworks/Squirrel.framework/Versions/A/Resources/ShipIt
+    cp -a ./app/cmd/squirrel/Info.plist dist/Pllama.app/Contents/Frameworks/Squirrel.framework/Versions/A/Resources/Info.plist
+    ln -s A dist/Pllama.app/Contents/Frameworks/Squirrel.framework/Versions/Current
+    ln -s Versions/Current/Resources dist/Pllama.app/Contents/Frameworks/Squirrel.framework/Resources
+    ln -s Versions/Current/Squirrel dist/Pllama.app/Contents/Frameworks/Squirrel.framework/Squirrel
 
     # Update the version in the Info.plist
-    plutil -replace CFBundleShortVersionString -string "$VERSION" dist/Ollama.app/Contents/Info.plist
-    plutil -replace CFBundleVersion -string "$VERSION" dist/Ollama.app/Contents/Info.plist
+    plutil -replace CFBundleShortVersionString -string "$VERSION" dist/Pllama.app/Contents/Info.plist
+    plutil -replace CFBundleVersion -string "$VERSION" dist/Pllama.app/Contents/Info.plist
 
-    # Setup the ollama binaries
-    mkdir -p dist/Ollama.app/Contents/Resources
+    # Set up the Pllama CLI and bundled runtime helpers.
+    mkdir -p dist/Pllama.app/Contents/Resources
     [ -d dist/darwin/lib/ollama ] || _merge_darwin_payload
-    cp -a dist/darwin/ollama dist/Ollama.app/Contents/Resources/ollama
-    cp dist/darwin/llama-server dist/Ollama.app/Contents/Resources/
-    cp dist/darwin/llama-quantize dist/Ollama.app/Contents/Resources/
+    cp -a dist/darwin/pllama dist/Pllama.app/Contents/Resources/pllama
+    cp dist/darwin/llama-server dist/Pllama.app/Contents/Resources/
+    cp dist/darwin/llama-quantize dist/Pllama.app/Contents/Resources/
     if [ -d dist/darwin/lib/ollama ]; then
-        cp -a dist/darwin/lib/ollama/. dist/Ollama.app/Contents/Resources/
+        cp -a dist/darwin/lib/ollama/. dist/Pllama.app/Contents/Resources/
     fi
-    chmod a+x dist/Ollama.app/Contents/Resources/ollama
+    chmod a+x dist/Pllama.app/Contents/Resources/pllama
 
     # Sign
     if [ -n "$APPLE_IDENTITY" ]; then
-        codesign -f --timestamp -s "$APPLE_IDENTITY" --identifier ai.ollama.ollama --options=runtime dist/Ollama.app/Contents/Resources/ollama
-        codesign -f --timestamp -s "$APPLE_IDENTITY" --identifier ai.ollama.ollama --options=runtime dist/Ollama.app/Contents/Resources/llama-server
-        codesign -f --timestamp -s "$APPLE_IDENTITY" --identifier ai.ollama.ollama --options=runtime dist/Ollama.app/Contents/Resources/llama-quantize
-        for lib in dist/Ollama.app/Contents/Resources/*.so dist/Ollama.app/Contents/Resources/*.dylib dist/Ollama.app/Contents/Resources/*.metallib dist/Ollama.app/Contents/Resources/mlx_metal_v*/*.dylib dist/Ollama.app/Contents/Resources/mlx_metal_v*/*.metallib dist/Ollama.app/Contents/Resources/mlx_metal_v*/*.so; do
+        codesign -f --timestamp -s "$APPLE_IDENTITY" --identifier com.parthsareen.pllama --options=runtime dist/Pllama.app/Contents/Resources/pllama
+        codesign -f --timestamp -s "$APPLE_IDENTITY" --identifier com.parthsareen.pllama --options=runtime dist/Pllama.app/Contents/Resources/llama-server
+        codesign -f --timestamp -s "$APPLE_IDENTITY" --identifier com.parthsareen.pllama --options=runtime dist/Pllama.app/Contents/Resources/llama-quantize
+        for lib in dist/Pllama.app/Contents/Resources/*.so dist/Pllama.app/Contents/Resources/*.dylib dist/Pllama.app/Contents/Resources/*.metallib dist/Pllama.app/Contents/Resources/mlx_metal_v*/*.dylib dist/Pllama.app/Contents/Resources/mlx_metal_v*/*.metallib dist/Pllama.app/Contents/Resources/mlx_metal_v*/*.so; do
             [ -f "$lib" ] || continue
-            codesign -f --timestamp -s "$APPLE_IDENTITY" --identifier ai.ollama.ollama --options=runtime "$lib"
+            codesign -f --timestamp -s "$APPLE_IDENTITY" --identifier com.parthsareen.pllama --options=runtime "$lib"
         done
-        codesign -f --timestamp -s "$APPLE_IDENTITY" --identifier com.electron.ollama --deep --options=runtime dist/Ollama.app
+        codesign -f --timestamp -s "$APPLE_IDENTITY" --identifier com.parthsareen.pllama --deep --options=runtime dist/Pllama.app
     fi
 
-    rm -f dist/Ollama-darwin.zip
-    ditto -c -k --norsrc --keepParent dist/Ollama.app dist/Ollama-darwin.zip
-    (cd dist/Ollama.app/Contents/Resources/; tar -cf - ollama llama-server llama-quantize *.so *.dylib *.metallib mlx_metal_v*/ 2>/dev/null) | gzip -9vc > dist/ollama-darwin.tgz
+    rm -f dist/Pllama-darwin.zip
+    ditto -c -k --norsrc --keepParent dist/Pllama.app dist/Pllama-darwin.zip
+    (cd dist/Pllama.app/Contents/Resources/; tar -cf - pllama llama-server llama-quantize *.so *.dylib *.metallib mlx_metal_v*/ 2>/dev/null) | gzip -9vc > dist/pllama-darwin.tgz
 
     # Notarize and Staple
     if [ -n "$APPLE_IDENTITY" ]; then
-        $(xcrun -f notarytool) submit dist/Ollama-darwin.zip --wait --timeout 20m --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID"
-        rm -f dist/Ollama-darwin.zip
-        $(xcrun -f stapler) staple dist/Ollama.app
-        ditto -c -k --norsrc --keepParent dist/Ollama.app dist/Ollama-darwin.zip
+        $(xcrun -f notarytool) submit dist/Pllama-darwin.zip --wait --timeout 20m --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID"
+        rm -f dist/Pllama-darwin.zip
+        $(xcrun -f stapler) staple dist/Pllama.app
+        ditto -c -k --norsrc --keepParent dist/Pllama.app dist/Pllama-darwin.zip
 
-        rm -f dist/Ollama.dmg
+        rm -f dist/Pllama.dmg
 
         (cd dist && ../scripts/create-dmg.sh \
             --volname "${VOL_NAME}" \
-            --volicon ../app/darwin/Ollama.app/Contents/Resources/icon.icns \
+            --volicon ../app/darwin/Pllama.app/Contents/Resources/icon.icns \
             --background ../app/assets/background.png \
             --window-pos 200 120 \
             --window-size 800 400 \
             --icon-size 128 \
-            --icon "Ollama.app" 200 190 \
-            --hide-extension "Ollama.app" \
+            --icon "Pllama.app" 200 190 \
+            --hide-extension "Pllama.app" \
             --app-drop-link 600 190 \
             --text-size 12 \
-            "Ollama.dmg" \
-            "Ollama.app" \
+            "Pllama.dmg" \
+            "Pllama.app" \
         ; )
         rm -f dist/rw*.dmg
 
-        codesign -f --timestamp -s "$APPLE_IDENTITY" --identifier ai.ollama.ollama --options=runtime dist/Ollama.dmg
-        $(xcrun -f notarytool) submit dist/Ollama.dmg --wait --timeout 20m --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID"
-        $(xcrun -f stapler) staple dist/Ollama.dmg
+        codesign -f --timestamp -s "$APPLE_IDENTITY" --identifier com.parthsareen.pllama --options=runtime dist/Pllama.dmg
+        $(xcrun -f notarytool) submit dist/Pllama.dmg --wait --timeout 20m --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID"
+        $(xcrun -f stapler) staple dist/Pllama.dmg
     else
         echo "WARNING: Code signing disabled, this bundle will not work for upgrade testing"
     fi

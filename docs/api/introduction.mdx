@@ -13,7 +13,7 @@ Follow the [quickstart](/quickstart) to install Ollama and make your first reque
 After installation, Ollama's API is served by default at:
 
 ```
-http://localhost:11434/api
+http://localhost:11433/api
 ```
 
 For running cloud models on **ollama.com**, the same API is available with the following base URL:
@@ -27,7 +27,7 @@ https://ollama.com/api
 Once Ollama is running, its API is automatically available and can be accessed via `curl`:
 
 ```shell
-curl http://localhost:11434/api/generate -d '{
+curl http://localhost:11433/api/generate -d '{
   "model": "gemma4",
   "prompt": "Why is the sky blue?"
 }'

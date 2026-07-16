@@ -6,7 +6,7 @@ Ollama runs as a native Windows application, including NVIDIA and AMD Radeon GPU
 After installing Ollama for Windows, Ollama will run in the background and
 the `ollama` command line is available in `cmd`, `powershell` or your favorite
 terminal application. As usual the Ollama [API](/api) will be served on
-`http://localhost:11434`.
+`http://localhost:11433`.
 
 ## System Requirements
 
@@ -55,7 +55,7 @@ If Ollama is already running, Quit the tray application and relaunch it from the
 Here's a quick example showing API access from `powershell`
 
 ```powershell
-(Invoke-WebRequest -method POST -Body '{"model":"llama3.2", "prompt":"Why is the sky blue?", "stream": false}' -uri http://localhost:11434/api/generate ).Content | ConvertFrom-json
+(Invoke-WebRequest -method POST -Body '{"model":"llama3.2", "prompt":"Why is the sky blue?", "stream": false}' -uri http://localhost:11433/api/generate ).Content | ConvertFrom-json
 ```
 
 ## Troubleshooting

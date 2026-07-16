@@ -17,10 +17,12 @@ import (
 	"time"
 )
 
+const DefaultPort = "11433"
+
 // Host returns the scheme and host. Host can be configured via the OLLAMA_HOST environment variable.
-// Default is scheme "http" and host "127.0.0.1:11434"
+// Default is scheme "http" and host "127.0.0.1:11433"
 func Host() *url.URL {
-	defaultPort := "11434"
+	defaultPort := DefaultPort
 
 	s := strings.TrimSpace(Var("OLLAMA_HOST"))
 	scheme, hostport, ok := strings.Cut(s, "://")
@@ -319,7 +321,7 @@ func AsMap() map[string]EnvVar {
 		"OLLAMA_IGPU_ENABLE":          {"OLLAMA_IGPU_ENABLE", String("OLLAMA_IGPU_ENABLE")(), "Enable integrated GPUs"},
 		"LLAMA_ARG_FIT":               {"LLAMA_ARG_FIT", String("LLAMA_ARG_FIT")(), "Enable llama.cpp automatic fit of unset memory options (default \"on\")"},
 		"LLAMA_ARG_FIT_TARGET":        {"LLAMA_ARG_FIT_TARGET", String("LLAMA_ARG_FIT_TARGET")(), "Target free VRAM margin per device for llama.cpp fit (MiB)"},
-		"OLLAMA_HOST":                 {"OLLAMA_HOST", Host(), "IP Address for the ollama server (default 127.0.0.1:11434)"},
+		"OLLAMA_HOST":                 {"OLLAMA_HOST", Host(), "IP Address for the Pllama server (default 127.0.0.1:11433)"},
 		"OLLAMA_KEEP_ALIVE":           {"OLLAMA_KEEP_ALIVE", KeepAlive(), "The duration that models stay loaded in memory (default \"5m\")"},
 		"OLLAMA_LLM_LIBRARY":          {"OLLAMA_LLM_LIBRARY", LLMLibrary(), "Set LLM library to bypass autodetection"},
 		"OLLAMA_LOAD_TIMEOUT":         {"OLLAMA_LOAD_TIMEOUT", LoadTimeout(), "How long to allow model loads to stall before giving up (default \"5m\")"},

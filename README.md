@@ -92,7 +92,7 @@ See the [quickstart guide](https://docs.ollama.com/quickstart) for more details.
 Ollama has a REST API for running and managing models.
 
 ```
-curl http://localhost:11434/api/chat -d '{
+curl http://localhost:11433/api/chat -d '{
   "model": "gemma4",
   "messages": [{
     "role": "user",

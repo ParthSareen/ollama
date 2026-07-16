@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	pidFile       = filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "Ollama", "ollama.pid")
-	serverLogPath = filepath.Join(os.Getenv("HOME"), ".ollama", "logs", "server.log")
+	pidFile       = filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "Pllama", "pllama.pid")
+	serverLogPath = filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "Pllama", "logs", "server.log")
 )
 
 func commandContext(ctx context.Context, name string, arg ...string) *exec.Cmd {
@@ -56,15 +56,15 @@ func ollamaServeProcess(pid int) bool {
 	return ollamaServeArgs(strings.Fields(strings.TrimSpace(string(output))))
 }
 
-// reapServers kills external ollama serve processes except our own.
+// reapServers kills external pllama serve processes except our own.
 func reapServers() error {
 	// Get our own PID to avoid killing ourselves
 	currentPID := os.Getpid()
 
-	// Use pkill to kill ollama processes
+	// Use pgrep to find pllama processes.
 	// -x matches the whole command name exactly
 	// We'll get the list first, then kill selectively
-	cmd := exec.Command("pgrep", "-x", "ollama")
+	cmd := exec.Command("pgrep", "-x", "pllama")
 	output, err := cmd.Output()
 	if err != nil {
 		// No ollama processes found

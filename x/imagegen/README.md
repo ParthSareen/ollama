@@ -65,7 +65,7 @@ POST /v1/images/generations
 ### Example: cURL
 
 ```bash
-curl http://localhost:11434/v1/images/generations \
+curl http://localhost:11433/v1/images/generations \
   -H "Content-Type: application/json" \
   -d '{
     "model": "z-image",
@@ -77,7 +77,7 @@ curl http://localhost:11434/v1/images/generations \
 ### Example: Save to File
 
 ```bash
-curl -s http://localhost:11434/v1/images/generations \
+curl -s http://localhost:11433/v1/images/generations \
   -H "Content-Type: application/json" \
   -d '{
     "model": "z-image",
@@ -91,7 +91,7 @@ curl -s http://localhost:11434/v1/images/generations \
 Enable streaming to receive progress updates via SSE:
 
 ```bash
-curl http://localhost:11434/v1/images/generations \
+curl http://localhost:11433/v1/images/generations \
   -H "Content-Type: application/json" \
   -d '{"model": "z-image", "prompt": "a sunset", "stream": true}'
 ```

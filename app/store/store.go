@@ -188,7 +188,7 @@ var defaultDBPath = func() string {
 	case "windows":
 		return filepath.Join(os.Getenv("LOCALAPPDATA"), "Ollama", "db.sqlite")
 	case "darwin":
-		return filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "Ollama", "db.sqlite")
+		return filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "Pllama", "db.sqlite")
 	default:
 		return filepath.Join(os.Getenv("HOME"), ".ollama", "db.sqlite")
 	}
@@ -200,7 +200,7 @@ var legacyConfigPath = func() string {
 	case "windows":
 		return filepath.Join(os.Getenv("LOCALAPPDATA"), "Ollama", "config.json")
 	case "darwin":
-		return filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "Ollama", "config.json")
+		return filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "Pllama", "config.json")
 	default:
 		return filepath.Join(os.Getenv("HOME"), ".ollama", "config.json")
 	}

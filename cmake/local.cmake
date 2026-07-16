@@ -569,12 +569,25 @@ if(OLLAMA_HAVE_LLAMA_SERVER)
     set(OLLAMA_GO_OUTPUT "${OLLAMA_GO_OUTPUT}" CACHE FILEPATH "Output path for the local Ollama Go binary")
     get_filename_component(OLLAMA_GO_OUTPUT_DIR "${OLLAMA_GO_OUTPUT}" DIRECTORY)
 
+    # CMake's `-E env` invocation below defines the environment seen by Go, so
+    # cross-architecture callers must pass these explicitly rather than relying
+    # on GOOS/GOARCH from the parent `cmake --build` process.
+    set(OLLAMA_GOOS "" CACHE STRING "Target GOOS for the local Ollama Go binary")
+    set(OLLAMA_GOARCH "" CACHE STRING "Target GOARCH for the local Ollama Go binary")
+    set(OLLAMA_GO_ENV CGO_ENABLED=1)
+    if(OLLAMA_GOOS)
+        list(APPEND OLLAMA_GO_ENV GOOS=${OLLAMA_GOOS})
+    endif()
+    if(OLLAMA_GOARCH)
+        list(APPEND OLLAMA_GO_ENV GOARCH=${OLLAMA_GOARCH})
+    endif()
+
     set(OLLAMA_GO_LDFLAGS
         "-s -w -X=github.com/ollama/ollama/version.Version=${OLLAMA_VERSION} -X=github.com/ollama/ollama/server.mode=release")
     if(GO_EXECUTABLE)
         add_custom_target(ollama-go ALL
             COMMAND ${CMAKE_COMMAND} -E make_directory "${OLLAMA_GO_OUTPUT_DIR}"
-            COMMAND ${CMAKE_COMMAND} -E env CGO_ENABLED=1
+            COMMAND ${CMAKE_COMMAND} -E env ${OLLAMA_GO_ENV}
                 ${GO_EXECUTABLE} build -trimpath -ldflags "${OLLAMA_GO_LDFLAGS}" -o "${OLLAMA_GO_OUTPUT}" .
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             BYPRODUCTS ${OLLAMA_GO_OUTPUT}

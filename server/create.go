@@ -363,7 +363,7 @@ func remoteURL(raw string) (string, error) {
 	if strings.HasPrefix(raw, "/") {
 		return (&url.URL{
 			Scheme: "http",
-			Host:   net.JoinHostPort("localhost", "11434"),
+			Host:   net.JoinHostPort("localhost", envconfig.DefaultPort),
 			Path:   path.Clean(raw),
 		}).String(), nil
 	}
@@ -389,7 +389,7 @@ func remoteURL(raw string) (string, error) {
 	if err == nil {
 		u.Host = net.JoinHostPort(hostPart, portPart)
 	} else {
-		u.Host = net.JoinHostPort(u.Host, "11434")
+		u.Host = net.JoinHostPort(u.Host, envconfig.DefaultPort)
 	}
 
 	if u.Path != "" {

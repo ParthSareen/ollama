@@ -25,7 +25,7 @@ Provide an `images` array. SDKs accept file paths, URLs or raw bytes while the R
     IMG=$(base64 < test.jpg | tr -d '\n')
 
     # 3. Send it to Ollama
-    curl -X POST http://localhost:11434/api/chat \
+    curl -X POST http://localhost:11433/api/chat \
     -H "Content-Type: application/json" \
     -d '{
         "model": "gemma4",

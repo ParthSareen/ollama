@@ -39,7 +39,7 @@ To change this when using `ollama run`, use `/set parameter`:
 When using the API, specify the `num_ctx` parameter:
 
 ```shell
-curl http://localhost:11434/api/generate -d '{
+curl http://localhost:11433/api/generate -d '{
   "model": "llama3.2",
   "prompt": "Why is the sky blue?",
   "options": {
@@ -83,7 +83,7 @@ If Ollama is run as a macOS application, environment variables should be set usi
 1. For each environment variable, call `launchctl setenv`.
 
    ```bash
-   launchctl setenv OLLAMA_HOST "0.0.0.0:11434"
+   launchctl setenv OLLAMA_HOST "0.0.0.0:11433"
    ```
 
 2. Restart Ollama application.
@@ -98,7 +98,7 @@ If Ollama is run as a systemd service, environment variables should be set using
 
    ```ini
    [Service]
-   Environment="OLLAMA_HOST=0.0.0.0:11434"
+   Environment="OLLAMA_HOST=0.0.0.0:11433"
    ```
 
 3. Save and exit.
@@ -153,7 +153,7 @@ Build and run this image:
 
 ```shell
 docker build -t ollama-with-ca .
-docker run -d -e HTTPS_PROXY=https://my.proxy.example.com -p 11434:11434 ollama-with-ca
+docker run -d -e HTTPS_PROXY=https://my.proxy.example.com -p 11433:11433 ollama-with-ca
 ```
 
 ## Does Ollama send my prompts and answers back to ollama.com?
@@ -182,7 +182,7 @@ Restart Ollama after changing configuration. Once disabled, Ollama's logs will s
 
 ## How can I expose Ollama on my network?
 
-Ollama binds 127.0.0.1 port 11434 by default. Change the bind address with the `OLLAMA_HOST` environment variable.
+Ollama binds 127.0.0.1 port 11433 by default. Change the bind address with the `OLLAMA_HOST` environment variable.
 
 Refer to the section [above](#how-do-i-configure-ollama-server) for how to set environment variables on your platform.
 
@@ -195,8 +195,8 @@ server {
     listen 80;
     server_name example.com;  # Replace with your domain or IP
     location / {
-        proxy_pass http://localhost:11434;
-        proxy_set_header Host localhost:11434;
+        proxy_pass http://localhost:11433;
+        proxy_set_header Host localhost:11433;
     }
 }
 ```
@@ -206,7 +206,7 @@ server {
 Ollama can be accessed using a range of tunneling apps. For example with Ngrok:
 
 ```shell
-ngrok http 11434 --host-header="localhost:11434"
+ngrok http 11433 --host-header="localhost:11433"
 ```
 
 ## How can I use Ollama with Cloudflare Tunnel?
@@ -214,7 +214,7 @@ ngrok http 11434 --host-header="localhost:11434"
 To use Ollama with Cloudflare Tunnel, use the `--url` and `--http-host-header` flags:
 
 ```shell
-cloudflared tunnel --url http://localhost:11434 --http-host-header="localhost:11434"
+cloudflared tunnel --url http://localhost:11433 --http-host-header="localhost:11433"
 ```
 
 ## How can I allow additional web origins to access Ollama?
@@ -271,13 +271,13 @@ If you are using the API you can preload a model by sending the Ollama server an
 To preload the mistral model using the generate endpoint, use:
 
 ```shell
-curl http://localhost:11434/api/generate -d '{"model": "mistral"}'
+curl http://localhost:11433/api/generate -d '{"model": "mistral"}'
 ```
 
 To use the chat completions endpoint, use:
 
 ```shell
-curl http://localhost:11434/api/chat -d '{"model": "mistral"}'
+curl http://localhost:11433/api/chat -d '{"model": "mistral"}'
 ```
 
 To preload a model using the CLI, use the command:
@@ -304,13 +304,13 @@ If you're using the API, use the `keep_alive` parameter with the `/api/generate`
 For example, to preload a model and leave it in memory use:
 
 ```shell
-curl http://localhost:11434/api/generate -d '{"model": "llama3.2", "keep_alive": -1}'
+curl http://localhost:11433/api/generate -d '{"model": "llama3.2", "keep_alive": -1}'
 ```
 
 To unload the model and free up memory use:
 
 ```shell
-curl http://localhost:11434/api/generate -d '{"model": "llama3.2", "keep_alive": 0}'
+curl http://localhost:11433/api/generate -d '{"model": "llama3.2", "keep_alive": 0}'
 ```
 
 Alternatively, you can change the amount of time all models are loaded into memory by setting the `OLLAMA_KEEP_ALIVE` environment variable when starting the Ollama server. The `OLLAMA_KEEP_ALIVE` variable uses the same parameter types as the `keep_alive` parameter types mentioned above. Refer to the section explaining [how to configure the Ollama server](#how-do-i-configure-ollama-server) to correctly set the environment variable.
