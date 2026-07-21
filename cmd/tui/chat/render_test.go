@@ -11,6 +11,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/termenv"
 
 	coreagent "github.com/ollama/ollama/agent"
 	"github.com/ollama/ollama/api"
@@ -735,6 +736,25 @@ func TestChatStreamingAssistantOutputHoldsLiveMarkdown(t *testing.T) {
 	}
 	if !strings.Contains(view, "generated line 01") {
 		t.Fatalf("latest generated line should remain visible:\n%s", view)
+	}
+}
+
+func TestChatStreamingAssistantOutputRendersCodeFences(t *testing.T) {
+	m := chatModel{
+		width:   80,
+		height:  12,
+		running: true,
+	}
+
+	m.applyAgentEvent(coreagent.Event{Type: coreagent.EventMessageDelta, Content: "```go\npackage"})
+	m.applyAgentEvent(coreagent.Event{Type: coreagent.EventMessageDelta, Content: " main\n```"})
+
+	view := stripANSI(m.View())
+	if strings.Contains(view, "```") {
+		t.Fatalf("streamed fence markers should not render:\n%s", view)
+	}
+	if !strings.Contains(view, "package main") {
+		t.Fatalf("streamed code should remain visible:\n%s", view)
 	}
 }
 
@@ -1969,5 +1989,49 @@ func TestRenderMarkdownTableWrapsLongCells(t *testing.T) {
 		if got := lipgloss.Width(line); got > 72 {
 			t.Fatalf("rendered table line width = %d, want <= 72: %q\n%s", got, stripANSI(line), plain)
 		}
+	}
+}
+
+func TestRenderMarkdownCodeFencesHighlightLanguageTaggedCode(t *testing.T) {
+	profile := lipgloss.ColorProfile()
+	lipgloss.SetColorProfile(termenv.TrueColor)
+	defer lipgloss.SetColorProfile(profile)
+
+	markdown := strings.Join([]string{
+		"```go",
+		"package main",
+		"func greet(name string) string {",
+		"\treturn \"hello \" + name // greeting",
+		"}",
+		"```",
+		"",
+		"```",
+		"plain code stays plain",
+		"```",
+	}, "\n")
+
+	rendered := renderMarkdownForView(markdown, 72)
+	plain := stripANSI(rendered)
+	if strings.Contains(plain, "```") {
+		t.Fatalf("fence markers should not render:\n%s", plain)
+	}
+	for _, want := range []string{"package main", "func greet(name string) string {", "plain code stays plain"} {
+		if !strings.Contains(plain, want) {
+			t.Fatalf("rendered code is missing %q:\n%s", want, plain)
+		}
+	}
+	for _, line := range strings.Split(rendered, "\n") {
+		if got := lipgloss.Width(line); got > 72 {
+			t.Fatalf("rendered code line width = %d, want <= 72: %q", got, stripANSI(line))
+		}
+	}
+	if got := markdownCodeTokenKindFor("go", "package", " main"); got != markdownCodeTokenKeyword {
+		t.Fatalf("package token kind = %v, want keyword", got)
+	}
+	if got := highlightMarkdownCodeLine("go", "package main"); !strings.Contains(got, "\x1b[") {
+		t.Fatalf("language-tagged code should render ANSI syntax styling: %q", got)
+	}
+	if got := highlightMarkdownCodeLine("", "plain code stays plain"); got != "plain code stays plain" {
+		t.Fatalf("untagged code = %q, want plain code", got)
 	}
 }
