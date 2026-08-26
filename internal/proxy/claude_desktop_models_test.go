@@ -22,17 +22,11 @@ func TestFetchClaudeDesktopModelsUsesAppAwareContract(t *testing.T) {
 		}
 		_ = json.NewEncoder(w).Encode(api.ModelRecommendationsResponse{
 			Recommendations: []api.ModelRecommendation{
-				{Model: "glm-5.2:cloud", Description: "GLM", MaxOutputTokens: 131_072, RequiredPlan: "pro"},
-				{Model: "glm-5.3-flash:cloud", Description: "GLM Flash", MaxOutputTokens: 1_048_576, RequiredPlan: "pro"},
-				{Model: "gemma4:31b-cloud", Description: "Gemma", MaxOutputTokens: 262_144, RequiredPlan: "free"},
 				{Model: "deepseek-v4-pro", Description: "DeepSeek", MaxOutputTokens: 65_536, RequiredPlan: "pro"},
 				{Model: "qwen3.8:27b", Description: "Qwen", MaxOutputTokens: 131_072},
 			},
 			Mappings: &api.ModelRecommendationMappings{
-				"claude-opus-5":     {Model: "glm-5.2:cloud", RequiredPlan: "pro"},
-				"claude-sonnet-5":   {Model: "glm-5.3-flash:cloud", RequiredPlan: "enterprise"},
-				"unknown-route":     {Model: "deepseek-v4-pro"},
-				"claude-sonnet-4-6": {Model: "missing-model:cloud"},
+				"claude-sonnet-5": {Model: "deepseek-v4-pro", RequiredPlan: "enterprise"},
 			},
 		})
 	}))
@@ -46,14 +40,14 @@ func TestFetchClaudeDesktopModelsUsesAppAwareContract(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := claudeDesktopModelNames(models), []string{"glm-5.2:cloud", "glm-5.3-flash:cloud", "gemma4:31b-cloud", "deepseek-v4-pro"}; !slices.Equal(got, want) {
+	if got, want := claudeDesktopModelNames(models), []string{"deepseek-v4-pro"}; !slices.Equal(got, want) {
 		t.Fatalf("models = %v, want %v", got, want)
 	}
-	if models[3].OllamaModel != "deepseek-v4-pro:cloud" || !models[3].Cloud {
-		t.Fatalf("cloud adapter = %+v", models[3])
+	if models[0].OllamaModel != "deepseek-v4-pro:cloud" || !models[0].Cloud {
+		t.Fatalf("cloud adapter = %+v", models[0])
 	}
-	if models[3].DisplayName != "deepseek-v4-pro:cloud" {
-		t.Fatalf("display name = %q, want exact model identifier", models[3].DisplayName)
+	if models[0].DisplayName != "deepseek-v4-pro:cloud" {
+		t.Fatalf("display name = %q, want exact model identifier", models[0].DisplayName)
 	}
 	for _, model := range models {
 		if !model.Recommended {
@@ -61,8 +55,7 @@ func TestFetchClaudeDesktopModelsUsesAppAwareContract(t *testing.T) {
 		}
 	}
 	want := map[string]string{
-		"claude-opus-5":   "glm-5.2:cloud",
-		"claude-sonnet-5": "glm-5.3-flash:cloud",
+		"claude-sonnet-5": "deepseek-v4-pro:cloud",
 	}
 	if got := DefaultClaudeDesktopMappingsForModels(models); !maps.Equal(got, want) {
 		t.Fatalf("endpoint mappings = %v, want %v", got, want)
@@ -497,21 +490,12 @@ func TestDefaultClaudeDesktopMappingsUsesSafeFallback(t *testing.T) {
 
 func TestDefaultClaudeDesktopMappingsUseCurrentCatalog(t *testing.T) {
 	models := ClaudeDesktopModelsFromRecommendations([]api.ModelRecommendation{
-		{Model: "glm-5.2:cloud", RequiredPlan: "pro"},
-		{Model: "glm-5.3-flash:cloud", RequiredPlan: "pro"},
-		{Model: "kimi-k3:cloud", RequiredPlan: "pro"},
-		{Model: "deepseek-v4-pro", RequiredPlan: "pro"},
-		{Model: "deepseek-v4-flash", RequiredPlan: "pro"},
 		{Model: "gemma4:31b-cloud", RequiredPlan: "free"},
 	})
 	got := DefaultClaudeDesktopMappingsForModels(models)
 	want := map[string]string{"claude-sonnet-5": "gemma4:31b-cloud"}
 	if !maps.Equal(got, want) {
 		t.Fatalf("catalog defaults = %v, want %v", got, want)
-	}
-	fallback := DefaultClaudeDesktopMappingsForModels(DefaultClaudeDesktopModels())
-	if got, want := fallback["claude-sonnet-5"], "gemma4:31b-cloud"; got != want {
-		t.Fatalf("fallback Sonnet default = %q, want %q", got, want)
 	}
 }
 

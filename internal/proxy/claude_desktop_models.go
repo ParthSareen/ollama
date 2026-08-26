@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"maps"
 	"net/http"
 	"strings"
 
@@ -50,16 +49,12 @@ func ClaudeDesktopRoutes() []ClaudeDesktopRoute {
 	return routes
 }
 
-// DefaultClaudeDesktopMappings returns the safe compatibility fallback used
-// when Ollama.com does not provide an app-specific mapping contract.
 func DefaultClaudeDesktopMappings() map[string]string {
 	return map[string]string{
 		"claude-sonnet-5": "gemma4:31b-cloud",
 	}
 }
 
-// DefaultClaudeDesktopMappingsForModels resolves the server contract, or the
-// compatibility fallback when it is absent, against the current catalog.
 func DefaultClaudeDesktopMappingsForModels(available []ClaudeDesktopModel) map[string]string {
 	wanted := DefaultClaudeDesktopMappings()
 	for _, model := range available {
@@ -144,9 +139,8 @@ func FetchClaudeDesktopModels(client *http.Client, req *http.Request) ([]ClaudeD
 		return nil, errors.New("Claude Desktop recommendations contain no cloud models")
 	}
 	if payload.Mappings != nil {
-		mappings := maps.Clone(*payload.Mappings)
 		for i := range cloudModels {
-			cloudModels[i].defaultMappings = &mappings
+			cloudModels[i].defaultMappings = payload.Mappings
 		}
 	}
 	return cloudModels, nil
@@ -211,9 +205,6 @@ func UnverifyClaudeDesktopCloudEntitlements(models []ClaudeDesktopModel) []Claud
 	return models
 }
 
-// PreserveClaudeDesktopCloudEntitlements carries verified account facts into
-// an offline catalog without replacing its built-in routes or weakening its
-// last-known plan requirement.
 func PreserveClaudeDesktopCloudEntitlements(models, previous []ClaudeDesktopModel) []ClaudeDesktopModel {
 	models = UnverifyClaudeDesktopCloudEntitlements(models)
 	known := make(map[string]ClaudeDesktopModel, len(previous)*2)
@@ -234,15 +225,13 @@ func PreserveClaudeDesktopCloudEntitlements(models, previous []ClaudeDesktopMode
 		required := strings.TrimSpace(models[i].RequiredPlan)
 		priorRequired := strings.TrimSpace(prior.RequiredPlan)
 		if (required == "" || strings.EqualFold(required, "free")) && priorRequired != "" && !strings.EqualFold(priorRequired, "free") {
+			// Keep the stricter requirement from the verified catalog.
 			models[i].RequiredPlan = priorRequired
 		}
 	}
 	return models
 }
 
-// WithoutClaudeDesktopRecommendationMappings returns a catalog without
-// server-provided defaults. Callers use this when retaining model metadata
-// across an offline refresh, where the prior mapping contract is stale.
 func WithoutClaudeDesktopRecommendationMappings(models []ClaudeDesktopModel) []ClaudeDesktopModel {
 	models = cloneClaudeDesktopModels(models)
 	for i := range models {

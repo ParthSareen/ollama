@@ -804,13 +804,11 @@ type ModelRecommendationsResponse struct {
 	Mappings        *ModelRecommendationMappings `json:"mappings,omitempty"`
 }
 
-// ModelRecommendationMapping defines one app-specific route preference.
 type ModelRecommendationMapping struct {
 	Model        string `json:"model"`
 	RequiredPlan string `json:"required_plan,omitempty"`
 }
 
-// ModelRecommendationMappings defines the app-specific model routes.
 type ModelRecommendationMappings map[string]ModelRecommendationMapping
 
 // ModelRecommendation is a single recommendation entry in [ModelRecommendationsResponse].

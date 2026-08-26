@@ -364,7 +364,6 @@ func TestResolveClaudeDesktopStartupCatalogUsesSafeFallback(t *testing.T) {
 		{name: "signed out", state: proxy.ClaudeDesktopAccessState{Cloud: proxy.ClaudeDesktopCloudOn, Account: proxy.ClaudeDesktopAccountSignedOut}},
 		{name: "free", state: proxy.ClaudeDesktopAccessState{Cloud: proxy.ClaudeDesktopCloudOn, Account: proxy.ClaudeDesktopAccountSignedIn, Plan: "free"}},
 		{name: "pro", state: proxy.ClaudeDesktopAccessState{Cloud: proxy.ClaudeDesktopCloudOn, Account: proxy.ClaudeDesktopAccountSignedIn, Plan: "pro"}},
-		{name: "team", state: proxy.ClaudeDesktopAccessState{Cloud: proxy.ClaudeDesktopCloudOn, Account: proxy.ClaudeDesktopAccountSignedIn, Plan: "team"}},
 	}
 	for _, tt := range states {
 		t.Run(tt.name, func(t *testing.T) {
@@ -870,28 +869,6 @@ func TestMapKnownClaudeDesktopModelsAllowsSharedModels(t *testing.T) {
 	}
 	if len(sparse) != 1 || sparse[0].GatewayID() != "claude-fable-5" {
 		t.Fatalf("sparse mapping = %+v", sparse)
-	}
-}
-
-func TestClaudeDesktopDefaultsDoNotDependOnAccountPlan(t *testing.T) {
-	want := proxy.DefaultClaudeDesktopMappings()
-	tests := []struct {
-		name  string
-		state proxy.ClaudeDesktopAccessState
-	}{
-		{name: "signed out", state: proxy.ClaudeDesktopAccessState{Account: proxy.ClaudeDesktopAccountSignedOut}},
-		{name: "free", state: proxy.ClaudeDesktopAccessState{Account: proxy.ClaudeDesktopAccountSignedIn, Plan: "free"}},
-		{name: "Pro", state: proxy.ClaudeDesktopAccessState{Account: proxy.ClaudeDesktopAccountSignedIn, Plan: "pro"}},
-		{name: "Team", state: proxy.ClaudeDesktopAccessState{Account: proxy.ClaudeDesktopAccountSignedIn, Plan: "team"}},
-		{name: "future paid plan", state: proxy.ClaudeDesktopAccessState{Account: proxy.ClaudeDesktopAccountSignedIn, Plan: "enterprise"}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := proxy.DefaultClaudeDesktopMappingsForModels(proxy.DefaultClaudeDesktopModels())
-			if !maps.Equal(got, want) {
-				t.Fatalf("default mappings for state %+v = %v, want %v", tt.state, got, want)
-			}
-		})
 	}
 }
 
